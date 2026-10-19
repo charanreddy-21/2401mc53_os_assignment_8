@@ -62,10 +62,7 @@ Key features implemented in this assignment:
 * **System Call:** `int va2pa(int va)`
 * Walks the calling process's page table starting from `myproc()->pgdir` using `walkpgdir()` (exposed in `defs.h`).
 * Validates present bit (`PTE_P`) and user-mode accessibility (`PTE_U`). Returns `-1` if the page is unmapped or inaccessible from user mode.
-* Kernel-side logs the decomposition using `cprintf`:
-  $$\text{PDX}(va) = (va \gg 22) \ \& \ 0x3FF$$
-  $$\text{PTX}(va) = (va \gg 12) \ \& \ 0x3FF$$
-  $$\text{Offset} = va \ \& \ 0xFFF$$
+* Kernel-side logs the decomposition using `cprintf`
 * **User Program (`vatest.c`):** Prints virtual and physical addresses for global, stack, and dynamic (`malloc`) variables. Verifies unmapped addresses (e.g., $0x7FFFFFFF$) return `-1`. Demonstrates that after `fork()`, parent and child share virtual addresses for global variables but map to distinct physical frames.
 
 ---
@@ -98,7 +95,6 @@ Key features implemented in this assignment:
 ### Overview & Implementation
 * Defer physical memory allocation in `sys_sbrk()` when $n > 0$ by expanding `myproc()->sz` without calling `growproc()`. Memory shrinking ($n < 0$) continues to deallocate physical pages immediately.
 * Intercept `T_PGFLT` traps in `trap.c`. Obtains faulting virtual address via `rcr2()`.
-* Validates boundary condition: $\text{Guard Page} \le \text{faulting\_va} < sz$. Allocates zeroed frame with `kalloc()`, maps via `mappages(..., PTE_W | PTE_U)`, and resumes execution.
 * Ensures kernel system calls (`read`, `write`, `copyin`, `copyout`) handle lazy buffers safely without crashing.
 * **User Program (`lazytest.c`):** Calls `sbrk(32 MB)`, touches widely spaced pages, checks `getmeminfo()`, tests `fork()`, and verifies system calls using untouched buffers.
 
